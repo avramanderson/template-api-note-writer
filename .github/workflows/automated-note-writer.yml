@@ -1,4 +1,4 @@
-name: Automated Community Note Writer (Safe Test)
+name: Automated Community Note Writer (Auth Test)
 
 on:
   workflow_dispatch:
@@ -12,24 +12,19 @@ jobs:
       X_API_KEY_SECRET: ${{ secrets.X_API_KEY_SECRET }}
       X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
       X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-      AUTO_SUBMIT_NOTES: "false"
-      MAX_POSTS_TO_PROCESS: "1"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Show branch and repo (debug)
-        run: |
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Branch: $GITHUB_REF"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-      - name: Check secret presence (values not shown)
+      - name: Install dependencies
         run: |
-          echo "X_API_KEY: ${X_API_KEY:+SET}"
-          echo "X_API_KEY_SECRET: ${X_API_KEY_SECRET:+SET}"
-          echo "X_ACCESS_TOKEN: ${X_ACCESS_TOKEN:+SET}"
-          echo "X_ACCESS_TOKEN_SECRET: ${X_ACCESS_TOKEN_SECRET:+SET}"
+          pip install requests requests_oauthlib
 
-      - name: Finish test
-        run: echo "Workflow completed"
+      - name: Run authentication test
+        run: python scripts/run_note_writer.py
