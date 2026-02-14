@@ -1,0 +1,41 @@
+name: Automated Community Note Writer (Safe Test)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-note-writer:
+    runs-on: ubuntu-latest
+    env:
+      # Map GitHub secrets into environment variables available to the runner
+      X_API_KEY: ${{ secrets.X_API_KEY }}
+      X_API_KEY_SECRET: ${{ secrets.X_API_KEY_SECRET }}
+      X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+      X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+      # Optional model provider key (add to repo secrets if used)
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      # Safety flag baked into the runner to prevent auto-submission
+      AUTO_SUBMIT_NOTES: "false"
+      MAX_POSTS_TO_PROCESS: "1"   # change to higher once testing is successful
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run note-writer script (dry/test mode)
+        id: run_writer
+        run: |
+          echo "Starting safe test run..."
+          # Example: call your runner script with env flags. Adjust path as needed.
+          python ./scripts/run_note_writer.py \
+            --max-posts ${MAX_POSTS_TO_PROCESS} \
+            --auto-submit ${AUTO_SUBMIT_NOTES}
